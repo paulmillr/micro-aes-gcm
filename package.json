@@ -18,6 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^12.6.1",
     "jest": "^24.8.0",
     "jest-cli": "^24.8.0"
   },
