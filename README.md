@@ -2,9 +2,7 @@
 
 [secretbox](https://nacl.cr.yp.to/secretbox.html) — authenticated data encryption with AES-GCM.
 
-DJB's secretbox uses XSalsa20-Poly1305. We'll use AES-GCM, which is also a good choice. DJB mentioned the AES box in his TODOs.
-
-AES has been selected over Salsa, because it's natively implemented in Node & browsers and doesn't require any 3rd-party libraries.
+Allows to encrypt arbitrary data in a cryptographically secure & modern way.
 
 ### This library belongs to *noble* crypto
 
@@ -18,7 +16,7 @@ AES has been selected over Salsa, because it's natively implemented in Node & br
   [secp256k1](https://github.com/paulmillr/noble-secp256k1),
   [ed25519](https://github.com/paulmillr/noble-ed25519),
   [ripemd160](https://github.com/paulmillr/noble-ripemd160),
-  [secretbox-aes-gcm](https://https://github.com/paulmillr/noble-secretbox-aes-gcm)
+  [secretbox-aes-gcm](https://github.com/paulmillr/noble-secretbox-aes-gcm)
 
 ## Usage
 
@@ -37,18 +35,34 @@ const plaintext = "Hello world";
 const ciphertext = await encrypt(key, message);
 const plaintext = await decrypt(key, ciphertext);
 new TextDecoder().decode(plaintext) === message;
-// Also supported in browser.
+// Also works in browsers
 ```
 
 ## API
+
+The API is simple: it receives one key, and one plaintext.
 
 ```typescript
 function encrypt(key: Uint8Array, plaintext: Uint8Array|string): Promise<Uint8Array>;
 ```
 
+`plaintext` in `encrypt` can be either a Uint8Array, or a string. If it's a string,
+`new TextDecoder().encode(plaintext)` would be executed before passing it further.
+
 ```typescript
 function decrypt(key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array>;
 ```
+
+Note that `decrypt` always returns `Uint8Array`. If you've encrypted UTF-8 string,
+`new TextDecoder().decode(result)` should be enough to get it back.
+
+## Security
+
+Noble is production-ready & secure. Our goal is to have it audited by a good security expert.
+
+DJB's secretbox uses XSalsa20-Poly1305. We'll use AES-GCM, which is also a good choice. DJB mentioned the AES box in his TODOs.
+
+AES has been selected over Salsa, because it's natively implemented in Node & browsers and doesn't require any 3rd-party libraries.
 
 ## License
 
