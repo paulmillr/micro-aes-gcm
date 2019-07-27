@@ -14,6 +14,10 @@ const Encoder =
   !isBrowser && typeof TextEncoder === "undefined"
     ? require("util").TextEncoder
     : TextEncoder;
+const Decoder =
+  !isBrowser && typeof TextDecoder === "undefined"
+    ? require("util").TextDecoder
+    : TextDecoder;
 
 if (isBrowser) {
   secureRandom = bytesLength => {
@@ -56,7 +60,11 @@ async function encrypt(sharedKey, plaintext) {
   const iv = secureRandom(12);
   if (isBrowser) {
     const bSharedKey = await wcryp.subtle.importKey(
-      "raw", sharedKey, MODE_PARAMS, true, ["encrypt"]
+      "raw",
+      sharedKey,
+      MODE_PARAMS,
+      true,
+      ["encrypt"]
     );
     const cipher = await wcryp.subtle.encrypt(
       { name: MODE_B, iv },
@@ -95,7 +103,11 @@ async function decrypt(sharedKey, encoded) {
   if (isBrowser) {
     const ciphertextWithTag = encoded.slice(12);
     const bSharedKey = await wcryp.subtle.importKey(
-      "raw", sharedKey, MODE_PARAMS, true, ["decrypt"]
+      "raw",
+      sharedKey,
+      MODE_PARAMS,
+      true,
+      ["decrypt"]
     );
     const plaintext = await wcryp.subtle.decrypt(
       { name: MODE_B, iv },
@@ -108,18 +120,24 @@ async function decrypt(sharedKey, encoded) {
     const authTag = encoded.slice(-16);
     const decipher = cryp.createDecipheriv(MODE, sharedKey, iv);
     decipher.setAuthTag(authTag);
-    let plaintext = decipher.update(ciphertext);
-    let res = Buffer.concat([plaintext, decipher.final()])
-    // plaintext += decipher.final("binary");
+    const plaintext = decipher.update(ciphertext);
+    const res = Buffer.concat([plaintext, decipher.final()]);
     return Uint8Array.from(res);
-    console.log(res, res.length);
-
-    return hexToUi8a(plaintext);
   }
+}
+
+/**
+ * Converts a typed array to unicode string in UTF-8 format.
+ * @param {Uint8Array} byteArray
+ * @returns {string}
+ */
+function toUtf8(byteArray) {
+  return new Decoder().decode(byteArray);
 }
 
 if (typeof exports !== "undefined") {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.decrypt = decrypt;
   exports.encrypt = encrypt;
+  exports.toUtf8 = toUtf8;
 }

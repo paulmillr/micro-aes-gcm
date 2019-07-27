@@ -40,7 +40,21 @@ new TextDecoder().decode(plaintext) === message;
 
 ## API
 
-The API is simple: it receives one key, and one plaintext.
+Secretbox receives one key, and one plaintext.
+
+The output format is: `iv + ciphertext + mac`:
+
+- `iv` is 12 bytes; it's an initialization vector for AES-GCM mode.
+- `ciphertext` length depends on plaintext
+- `mac` is 16 bytes; AES-GCM calculates this authentication tag for us.
+
+To slice through IV and MAC, you can use `Uint8Array.prototype.slice()`:
+
+```js
+const ciphertext = await encrypt(key, plaintext);
+const iv = ciphertext.slice(0, 12);
+const mac = ciphertext.slice(-16);
+```
 
 ```typescript
 function encrypt(key: Uint8Array, plaintext: Uint8Array|string): Promise<Uint8Array>;
