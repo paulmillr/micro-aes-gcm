@@ -23,7 +23,7 @@ Allows to encrypt arbitrary data in a cryptographically secure & modern way.
 > npm install noble-secretbox-aes-gcm
 
 ```js
-import {encrypt, decrypt} from "noble-secretbox-aes-gcm";
+import {encrypt, decrypt, toUTF8} from "noble-secretbox-aes-gcm";
 const key = Uint8Array.from([
   64, 196, 127, 247, 172,   2,  34,
   159,   6, 241,  30, 174, 183, 229,
@@ -34,11 +34,27 @@ const key = Uint8Array.from([
 const plaintext = "Hello world";
 const ciphertext = await encrypt(key, message);
 const plaintext = await decrypt(key, ciphertext);
-new TextDecoder().decode(plaintext) === message;
+console.log(toUTF8(plaintext) === message);
 // Also works in browsers
 ```
 
 ## API
+
+```typescript
+function encrypt(key: Uint8Array, plaintext: Uint8Array|string): Promise<Uint8Array>;
+```
+
+`plaintext` in `encrypt` can be either a Uint8Array, or a string. If it's a string,
+`new TextDecoder().encode(plaintext)` would be executed before passing it further.
+
+```typescript
+function decrypt(key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array>;
+```
+
+Note that `decrypt` always returns `Uint8Array`. If you've encrypted UTF-8 string,
+`toUTF8(result)` should be enough to get it back.
+
+## Internals
 
 Secretbox receives one key, and one plaintext.
 
@@ -55,20 +71,6 @@ const ciphertext = await encrypt(key, plaintext);
 const iv = ciphertext.slice(0, 12);
 const mac = ciphertext.slice(-16);
 ```
-
-```typescript
-function encrypt(key: Uint8Array, plaintext: Uint8Array|string): Promise<Uint8Array>;
-```
-
-`plaintext` in `encrypt` can be either a Uint8Array, or a string. If it's a string,
-`new TextDecoder().encode(plaintext)` would be executed before passing it further.
-
-```typescript
-function decrypt(key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array>;
-```
-
-Note that `decrypt` always returns `Uint8Array`. If you've encrypted UTF-8 string,
-`new TextDecoder().decode(result)` should be enough to get it back.
 
 ## Security
 

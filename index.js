@@ -131,7 +131,7 @@ async function decrypt(sharedKey, encoded) {
  * @param {Uint8Array} byteArray
  * @returns {string}
  */
-function toUtf8(byteArray) {
+function toUTF8(byteArray) {
   return new Decoder().decode(byteArray);
 }
 
@@ -139,5 +139,5 @@ if (typeof exports !== "undefined") {
   Object.defineProperty(exports, "__esModule", { value: true });
   exports.decrypt = decrypt;
   exports.encrypt = encrypt;
-  exports.toUtf8 = toUtf8;
+  exports.toUTF8 = toUTF8;
 }
