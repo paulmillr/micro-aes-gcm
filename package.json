@@ -1,6 +1,6 @@
 {
   "name": "noble-secretbox-aes-gcm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Noble secretbox data encryption with AES. High-security, easily auditable, 0-dep, 1-file.",
   "main": "index.js",
   "files": [
