@@ -80,6 +80,8 @@ DJB's secretbox uses XSalsa20-Poly1305. We'll use AES-GCM, which is also a good 
 
 AES has been selected over Salsa, because it's natively implemented in Node & browsers and doesn't require any 3rd-party libraries.
 
+NOTE: This library is a simple wrapper over aes-gcm. It does not provide key derivation a real secretbox does! You must do it by yourself.
+
 ## License
 
 MIT (c) Paul Miller (https://paulmillr.com), see LICENSE file.
