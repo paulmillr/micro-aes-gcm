@@ -85,4 +85,4 @@ NOTE: This library is a simple wrapper over aes-gcm. It does not provide key der
 
 ## License
 
-MIT (c) Paul Miller (https://paulmillr.com), see LICENSE file.
+MIT (c) Paul Miller [(https://paulmillr.com)](https://paulmillr.com), see LICENSE file.
