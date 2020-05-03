@@ -9,7 +9,7 @@ const wcryp = isBrowser && window.crypto;
 const cryp = !isBrowser && require("crypto");
 const secureRandom = wcryp ?
   (length => window.crypto.getRandomValues(new Uint8Array(length))) :
-  (length => new Uint8Array(randomBytes(length).buffer));
+  (length => new Uint8Array(cryp.randomBytes(length).buffer));
 
 function hexToArray(hex) {
   if (hex.startsWith('0x')) hex = hex.slice(2);

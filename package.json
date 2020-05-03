@@ -1,26 +1,25 @@
 {
-  "name": "noble-secretbox-aes-gcm",
-  "version": "0.1.2",
-  "description": "Noble secretbox data encryption with AES. High-security, easily auditable, 0-dep, 1-file.",
+  "name": "micro-aes-gcm",
+  "version": "0.2.0",
+  "description": "Simple 0-dep wrapper over node.js/browser AES-GCM.",
   "main": "index.js",
   "files": [
     "index.js",
     "index.d.ts"
   ],
   "scripts": {
-    "test": "jest"
+    "test": "node test.js"
   },
   "author": "Paul Miller (https://paulmillr.com)",
-  "homepage": "https://github.com/paulmillr/noble-secretbox-aes-gcm",
+  "homepage": "https://github.com/paulmillr/micro-aes-gcm",
   "repository": {
     "type": "git",
-    "url": "https://github.com/paulmillr/noble-secretbox-aes-gcm.git"
+    "url": "https://github.com/paulmillr/micro-aes-gcm.git"
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^12.6.1",
-    "jest": "^24.8.0",
-    "jest-cli": "^24.8.0"
+    "@types/node": "^12",
+    "micro-should": "0.1.0"
   },
   "keywords": [
     "secretbox",
