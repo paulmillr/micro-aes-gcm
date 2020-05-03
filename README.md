@@ -2,7 +2,7 @@
 
 Authenticated data encryption with AES-GCM. Allows to encrypt arbitrary data in a cryptographically secure & modern way.
 
-A simple wrapper over nopdejs and browser aes-gcm implementations.
+A simple wrapper over node.js and browser aes-gcm implementations. No dependencies.
 
 ## Usage
 
