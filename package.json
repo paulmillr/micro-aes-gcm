@@ -1,6 +1,6 @@
 {
   "name": "micro-aes-gcm",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Simple 0-dep wrapper over node.js/browser AES-GCM.",
   "module": "index.js",
   "type": "module",
