@@ -27,7 +27,7 @@ function hexToBytes(hex) {
 // Concatenates several Uint8Arrays into one.
 // TODO: check if we're copying data instead of moving it and if that's ok
 function concatBytes(...arrays) {
-  if (!arrays.every(isUint8a)) throw new Error('Uint8Array list expected');
+  if (!arrays.every(arr => arr instanceof Uint8Array)) throw new Error('Uint8Array list expected');
   if (arrays.length === 1) return arrays[0];
   const length = arrays.reduce((a, arr) => a + arr.length, 0);
   const result = new Uint8Array(length);
@@ -53,7 +53,7 @@ const MODES = {
 export async function encrypt(sharedKey, plaintext) {
   if (typeof plaintext === 'string') plaintext = utils.utf8ToBytes(plaintext);
   const iv = utils.randomBytes(12);
-  if (isBrowser) {
+  if (crypto.web) {
     // prettier-ignore
     const bSharedKey = await crypto.web.subtle.importKey(
       'raw', sharedKey, MODES.browserDetailed, true, ['encrypt']
@@ -86,7 +86,7 @@ export async function encrypt(sharedKey, plaintext) {
 export async function decrypt(sharedKey, encoded) {
   if (typeof encoded === 'string') encoded = hexToArray(encoded);
   const iv = encoded.slice(0, 12);
-  if (isBrowser) {
+  if (crypto.web) {
     const ciphertextWithTag = encoded.slice(12);
     // prettier-ignore
     const bSharedKey = await crypto.web.subtle.importKey(

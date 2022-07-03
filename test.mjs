@@ -1,6 +1,6 @@
-const { encrypt, decrypt } = require(".");
-const {should} = require('micro-should');
-const assert = require('assert');
+import { encrypt, decrypt } from "./index.mjs";
+import {should} from 'micro-should';
+import assert  from 'assert';
 
 should("should encrypt and decrypt", async () => {
   const SHARED_KEY = Uint8Array.from([
