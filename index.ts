@@ -1,14 +1,14 @@
 import * as nodeCrypto from 'crypto';
 
 // Global symbol available in browsers only. Ensure we do not depend on @types/dom
-// declare const self: Record<string, any> | undefined;
+declare const self: Record<string, any> | undefined;
 const crypto = {
   node: nodeCrypto,
   web: typeof self === 'object' && 'crypto' in self ? self.crypto : undefined,
 };
 
 // Caching slows it down 2-3x
-function hexToBytes(hex) {
+function hexToBytes(hex: string): Uint8Array {
   if (typeof hex !== 'string') {
     throw new TypeError('hexToBytes: expected string, got ' + typeof hex);
   }
@@ -26,8 +26,9 @@ function hexToBytes(hex) {
 
 // Concatenates several Uint8Arrays into one.
 // TODO: check if we're copying data instead of moving it and if that's ok
-function concatBytes(...arrays) {
-  if (!arrays.every(arr => arr instanceof Uint8Array)) throw new Error('Uint8Array list expected');
+function concatBytes(...arrays: Uint8Array[]): Uint8Array {
+  if (!arrays.every((arr) => arr instanceof Uint8Array))
+    throw new Error('Uint8Array list expected');
   if (arrays.length === 1) return arrays[0];
   const length = arrays.reduce((a, arr) => a + arr.length, 0);
   const result = new Uint8Array(length);
@@ -39,36 +40,21 @@ function concatBytes(...arrays) {
   return result;
 }
 
-const MODES = {
-  node: 'aes-256-gcm',
-  browser: 'AES-GCM',
-  browserDetailed: { name: 'AES-GCM', length: 256 },
-};
+const MD = { e: 'AES-GCM', i: { name: 'AES-GCM', length: 256 } };
 
-/**
- * @param {Uint8Array} sharedKey
- * @param {Uint8Array|string} plaintext
- * @returns {Promise<Uint8Array>}
- */
-export async function encrypt(sharedKey, plaintext) {
+export async function encrypt(sharedKey: Uint8Array, plaintext: string | Uint8Array) {
   if (typeof plaintext === 'string') plaintext = utils.utf8ToBytes(plaintext);
   const iv = utils.randomBytes(12);
   if (crypto.web) {
-    // prettier-ignore
-    const bSharedKey = await crypto.web.subtle.importKey(
-      'raw', sharedKey, MODES.browserDetailed, true, ['encrypt']
-    );
-    // prettier-ignore
-    const cipher = await crypto.web.subtle.encrypt(
-      { name: MODES.browser, iv }, bSharedKey, plaintext
-    );
+    const iKey = await crypto.web.subtle.importKey('raw', sharedKey, MD.i, true, ['encrypt']);
+    const cipher = await crypto.web.subtle.encrypt({ name: MD.e, iv }, iKey, plaintext);
     const ciphertext = new Uint8Array(cipher);
     const encrypted = new Uint8Array(iv.length + ciphertext.byteLength);
     encrypted.set(iv, 0);
     encrypted.set(ciphertext, iv.length);
     return encrypted;
   } else {
-    const cipher = crypto.node.createCipheriv(MODES.node, sharedKey, iv);
+    const cipher = crypto.node.createCipheriv('aes-256-gcm', sharedKey, iv);
     let ciphertext = cipher.update(plaintext, undefined, 'hex');
     ciphertext += cipher.final('hex');
     const ciphertextBytes = hexToBytes(ciphertext);
@@ -78,29 +64,18 @@ export async function encrypt(sharedKey, plaintext) {
   }
 }
 
-/**
- * @param {Uint8Array} sharedKey
- * @param {Uint8Array} encoded
- * @returns {Promise<Uint8Array>}
- */
-export async function decrypt(sharedKey, encoded) {
-  if (typeof encoded === 'string') encoded = hexToArray(encoded);
+export async function decrypt(sharedKey: Uint8Array, encoded: string | Uint8Array) {
+  if (typeof encoded === 'string') encoded = hexToBytes(encoded);
   const iv = encoded.slice(0, 12);
   if (crypto.web) {
     const ciphertextWithTag = encoded.slice(12);
-    // prettier-ignore
-    const bSharedKey = await crypto.web.subtle.importKey(
-      'raw', sharedKey, MODES.browserDetailed, true, ['decrypt']
-    );
-    // prettier-ignore
-    const plaintext = await crypto.web.subtle.decrypt(
-      { name: MODES.browser, iv }, bSharedKey, ciphertextWithTag
-    );
+    const iKey = await crypto.web.subtle.importKey('raw', sharedKey, MD.i, true, ['decrypt']);
+    const plaintext = await crypto.web.subtle.decrypt({ name: MD.e, iv }, iKey, ciphertextWithTag);
     return new Uint8Array(plaintext);
   } else {
     const ciphertext = encoded.slice(12, -16);
     const authTag = encoded.slice(-16);
-    const decipher = crypto.node.createDecipheriv(MODES.node, sharedKey, iv);
+    const decipher = crypto.node.createDecipheriv('aes-256-gcm', sharedKey, iv);
     decipher.setAuthTag(authTag);
     const plaintext = decipher.update(ciphertext);
     const final = Uint8Array.from(decipher.final());
@@ -108,6 +83,9 @@ export async function decrypt(sharedKey, encoded) {
     return res;
   }
 }
+
+declare const TextEncoder: any;
+declare const TextDecoder: any;
 
 export const utils = {
   randomBytes: (bytesLength = 32) => {
@@ -120,12 +98,15 @@ export const utils = {
       throw new Error("The environment doesn't have randomBytes function");
     }
   },
-  bytesToUtf8(bytes) {
+  bytesToUtf8(bytes: Uint8Array): string {
     return new TextDecoder().decode(bytes);
   },
-  utf8ToBytes(string) {
+  utf8ToBytes(string: string): Uint8Array {
     return new TextEncoder().encode(string);
   },
   hexToBytes,
-  concatBytes
+  concatBytes,
 };
+
+const aes = { encrypt, decrypt };
+export default aes;
