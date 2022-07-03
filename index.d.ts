@@ -9,5 +9,9 @@ export declare const utils: {
     hexToBytes: typeof hexToBytes;
     concatBytes: typeof concatBytes;
 };
-export {};
+declare const aes: {
+    encrypt: typeof encrypt;
+    decrypt: typeof decrypt;
+};
+export default aes;
 //# sourceMappingURL=index.d.ts.map

@@ -101,3 +101,5 @@ export const utils = {
     hexToBytes,
     concatBytes,
 };
+const aes = { encrypt, decrypt };
+export default aes;
