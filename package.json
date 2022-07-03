@@ -2,7 +2,7 @@
   "name": "micro-aes-gcm",
   "version": "0.3.0",
   "description": "Simple 0-dep wrapper over node.js/browser AES-GCM.",
-  "main": "index.mjs",
+  "module": "index.mjs",
   "type": "module",
   "files": [
     "index.mjs"
@@ -11,7 +11,7 @@
     "crypto": false
   },
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.mjs"
   },
   "author": "Paul Miller (https://paulmillr.com)",
   "homepage": "https://github.com/paulmillr/micro-aes-gcm",
