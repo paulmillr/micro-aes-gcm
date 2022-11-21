@@ -20,7 +20,7 @@ const key = Uint8Array.from([
 const message = "Hello world";
 const ciphertext = await aes.encrypt(key, message);
 const plaintext = await aes.decrypt(key, ciphertext);
-console.log(aes.toUTF8(plaintext) === message);
+console.log(aes.utils.bytesToUtf8(plaintext) === message);
 // Also works in browsers
 ```
 
