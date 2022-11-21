@@ -17,7 +17,7 @@ const key = Uint8Array.from([
   243, 155, 236, 164, 159,  98,  72,
   162, 243, 224, 195
 ]);
-const plaintext = "Hello world";
+const message = "Hello world";
 const ciphertext = await aes.encrypt(key, message);
 const plaintext = await aes.decrypt(key, ciphertext);
 console.log(aes.toUTF8(plaintext) === message);
