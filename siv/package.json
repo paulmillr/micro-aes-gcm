@@ -1,0 +1,34 @@
+{
+  "name": "micro-aes-gcm-siv",
+  "version": "0.3.1",
+  "description": "AES-GCM-SIV: classic AES-GCM with nonce-misuse resistance. Implements RFC 8452",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "bench": "node test/bench.js",
+    "build": "tsc -d",
+    "test": "node test/node.js"
+  },
+  "keywords": [
+    "fetch",
+    "http",
+    "https",
+    "node",
+    "browser",
+    "ajax",
+    "request"
+  ],
+  "author": "Paul Miller (https://paulmillr.com)",
+  "license": "MIT",
+  "dependencies": {
+    "@noble/hashes": "^1.0.0"
+  },
+  "devDependencies": {
+    "micro-bmark": "0.2.0",
+    "@types/node": "16.0",
+    "typescript": "4.7.3"
+  }
+}

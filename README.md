@@ -4,6 +4,8 @@ Authenticated data encryption with AES-GCM. Allows to encrypt arbitrary data in 
 
 A simple wrapper over node.js and browser aes-gcm implementations. No dependencies.
 
+Check out also unpublished AES-GCM-SIV in siv directory of the repository, which implements nonce-misuse resistance from RFC 8452.
+
 ## Usage
 
 > npm install micro-aes-gcm
