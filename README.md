@@ -2,7 +2,7 @@
 
 0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation.
 
-Node.js 19 or higher is required. For older node.js, you'll need shim: `globalThis.crypto = require('node.crypto').webcrypto`.
+Can be imported in browsers as ESM import. For Node.js, v19+ is required. For older node.js, use shim: `globalThis.crypto = require('node.crypto').webcrypto`.
 
 Inserts IV and MAC into the output `iv + ciphertext + mac`:
 
