@@ -1,7 +1,6 @@
-const bench = require('micro-bmark');
-const { run, mark } = bench; // or bench.mark
-const crypto = require('crypto');
-const aes = require('../index').AES;
+import * as bench from 'micro-bmark';
+import * as crypto from 'node:crypto';
+import { AES as aes } from '../siv.js';
 
 const KEY16 = new Uint8Array(16);
 const KEY32 = new Uint8Array(32);
@@ -36,19 +35,18 @@ const buffers = {
 };
 
 const main = () =>
-  run(async () => {
+  bench.run(async () => {
     for (let [k, libs] of Object.entries(TESTS)) {
       console.log(`==== ${k} ====`);
       for (const [size, [samples, buf]] of Object.entries(buffers)) {
         for (const [lib, fn] of Object.entries(libs)) {
           let title = `${k} ${size} ${lib}`;
-          await mark(title, samples, () => fn(buf));
+          await bench.mark(title, samples, () => fn(buf));
         }
       }
     }
     // Log current RAM
-    bench.logMem();
+    bench.utils.logMem();
   });
 
-module.exports = { main };
-if (require.main === module) main();
+main();

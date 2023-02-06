@@ -1,5 +1,5 @@
-const mod = require('../index');
-const common = require('./common');
+import * as mod from '../siv.js';
+import * as common from './common.js';
 const error = (...txt) => console.log('[\x1b[31mERROR\x1b[0m]', ...txt);
 const ok = (...txt) => console.log('[\x1b[32mOK\x1b[0m]', ...txt);
 const run = async (txt, fn) => {

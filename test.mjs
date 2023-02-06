@@ -8,7 +8,7 @@ should('should encrypt and decrypt', async () => {
     243, 155, 236, 164, 159, 98, 72, 162, 243, 224, 195,
   ]);
   const plaintext = 'Hello world';
-  const ciphertext = await encrypt(key, plaintext);
+  const ciphertext = await encrypt(key, utils.utf8ToBytes(plaintext));
   const plaintext2 = await decrypt(key, ciphertext);
   assert.equal(utils.bytesToUtf8(plaintext2), plaintext);
   return true;

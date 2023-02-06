@@ -1,7 +1,7 @@
 {
   "name": "micro-aes-gcm",
   "version": "0.3.3",
-  "description": "Simple 0-dep wrapper over node.js/browser AES-GCM",
+  "description": "0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation",
   "main": "index.js",
   "module": "index.js",
   "type": "module",
@@ -9,11 +9,12 @@
     "index.js",
     "index.d.ts",
     "index.d.ts.map",
-    "index.ts"
+    "index.ts",
+    "siv.js",
+    "siv.d.ts",
+    "siv.d.ts.map",
+    "siv.ts"
   ],
-  "browser": {
-    "crypto": false
-  },
   "scripts": {
     "build": "tsc",
     "test": "node test.mjs"
@@ -26,25 +27,21 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "18.0.0",
+    "@types/node": "^18.0.0",
     "micro-should": "0.2.0",
-    "typescript": "4.7.3"
+    "typescript": "4.7.3",
+    "micro-bmark": "^0.3.0"
   },
   "keywords": [
-    "secretbox",
-    "box",
-    "nacl",
     "aes",
-    "aes-gcm",
     "gcm",
-    "symmetric encryption",
-    "symmetric",
     "mac",
-    "gmac",
-    "aead",
-    "authenticated",
-    "authentication",
-    "security",
-    "noble"
+    "crypto",
+    "cryptography",
+    "siv",
+    "nonce",
+    "misuse",
+    "RFC 8452",
+    "RFC8452"
   ]
 }

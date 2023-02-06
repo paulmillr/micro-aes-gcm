@@ -1,4 +1,4 @@
-/*! micro-aes-gcm-siv - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+/*! micro-aes-gcm - MIT License (c) 2022 Paul Miller (paulmillr.com) */
 
 /**
  * AES-GCM-SIV: classic AES-GCM with nonce-misuse resistance.
@@ -9,6 +9,9 @@
 type TypedArray = Int8Array | Uint8ClampedArray | Uint8Array |
   Uint16Array | Int16Array | Uint32Array | Int32Array;
 
+declare const globalThis: Record<string, any> | undefined;
+const cr = globalThis?.crypto;
+
 // Cast array to different type
 const u8 = (arr: TypedArray) => new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
 const u32 = (arr: TypedArray) =>
@@ -16,15 +19,6 @@ const u32 = (arr: TypedArray) =>
 
 // Cast array to view
 const createView = (arr: TypedArray) => new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
-
-const crypto: { node?: any; web?: any } = (() => {
-  const webCrypto = typeof self === 'object' && 'crypto' in self ? self.crypto : undefined;
-  const nodeRequire = typeof module !== 'undefined' && typeof require === 'function';
-  return {
-    node: nodeRequire && !webCrypto ? require('crypto') : undefined,
-    web: webCrypto,
-  };
-})();
 
 // Polyfill for Safari 14
 function setBigUint64(view: DataView, byteOffset: number, value: bigint, isLE: boolean): void {
@@ -39,27 +33,25 @@ function setBigUint64(view: DataView, byteOffset: number, value: bigint, isLE: b
   view.setUint32(byteOffset + l, wl, isLE);
 }
 
+
+function ensureCrypto() {
+  if (!cr) throw new Error('globalThis.crypto is not available: use nodejs 19+ or browser');
+}
+
 // AES stuff (same as ff1)
 const BLOCK_LEN = 16;
 const IV = new Uint8Array(BLOCK_LEN);
 async function encryptBlock(msg: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
+  ensureCrypto();
   if (key.length !== 16 && key.length !== 32) throw new Error('Invalid key length');
-  if (crypto.web) {
-    const mode = { name: `AES-CBC`, length: key.length * 8 };
-    const wKey = await crypto.web.subtle.importKey('raw', key, mode, true, ['encrypt']);
-    const cipher = await crypto.web.subtle.encrypt(
-      { name: `aes-cbc`, iv: IV, counter: IV, length: 64 },
-      wKey,
-      msg
-    );
-    return new Uint8Array(cipher).subarray(0, 16);
-  } else if (crypto.node) {
-    // ECB is a bit faster, we don't need IV
-    const mode = key.length === 32 ? 'aes-256-ecb' : 'aes-128-ecb';
-    return Uint8Array.from(crypto.node.createCipheriv(mode, key, null).update(msg));
-  } else {
-    throw new Error("The environment doesn't have AES module");
-  }
+  const mode = { name: `AES-CBC`, length: key.length * 8 };
+  const wKey = await cr.subtle.importKey('raw', key, mode, true, ['encrypt']);
+  const cipher = await cr.subtle.encrypt(
+    { name: `aes-cbc`, iv: IV, counter: IV, length: 64 },
+    wKey,
+    msg
+  );
+  return new Uint8Array(cipher).subarray(0, 16);
 }
 
 // Polyval

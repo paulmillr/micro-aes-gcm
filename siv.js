@@ -1,18 +1,8 @@
-"use strict";
-/*! micro-aes-gcm-siv - MIT License (c) 2022 Paul Miller (paulmillr.com) */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AES = exports.deriveKeys = exports.polyval = void 0;
+/*! micro-aes-gcm - MIT License (c) 2022 Paul Miller (paulmillr.com) */
+const cr = globalThis?.crypto;
 const u8 = (arr) => new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
 const u32 = (arr) => new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
 const createView = (arr) => new DataView(arr.buffer, arr.byteOffset, arr.byteLength);
-const crypto = (() => {
-    const webCrypto = typeof self === 'object' && 'crypto' in self ? self.crypto : undefined;
-    const nodeRequire = typeof module !== 'undefined' && typeof require === 'function';
-    return {
-        node: nodeRequire && !webCrypto ? require('crypto') : undefined,
-        web: webCrypto,
-    };
-})();
 function setBigUint64(view, byteOffset, value, isLE) {
     if (typeof view.setBigUint64 === 'function')
         return view.setBigUint64(byteOffset, value, isLE);
@@ -25,24 +15,20 @@ function setBigUint64(view, byteOffset, value, isLE) {
     view.setUint32(byteOffset + h, wh, isLE);
     view.setUint32(byteOffset + l, wl, isLE);
 }
+function ensureCrypto() {
+    if (!cr)
+        throw new Error('globalThis.crypto is not available: use nodejs 19+ or browser');
+}
 const BLOCK_LEN = 16;
 const IV = new Uint8Array(BLOCK_LEN);
 async function encryptBlock(msg, key) {
+    ensureCrypto();
     if (key.length !== 16 && key.length !== 32)
         throw new Error('Invalid key length');
-    if (crypto.web) {
-        const mode = { name: `AES-CBC`, length: key.length * 8 };
-        const wKey = await crypto.web.subtle.importKey('raw', key, mode, true, ['encrypt']);
-        const cipher = await crypto.web.subtle.encrypt({ name: `aes-cbc`, iv: IV, counter: IV, length: 64 }, wKey, msg);
-        return new Uint8Array(cipher).subarray(0, 16);
-    }
-    else if (crypto.node) {
-        const mode = key.length === 32 ? 'aes-256-ecb' : 'aes-128-ecb';
-        return Uint8Array.from(crypto.node.createCipheriv(mode, key, null).update(msg));
-    }
-    else {
-        throw new Error("The environment doesn't have AES module");
-    }
+    const mode = { name: `AES-CBC`, length: key.length * 8 };
+    const wKey = await cr.subtle.importKey('raw', key, mode, true, ['encrypt']);
+    const cipher = await cr.subtle.encrypt({ name: `aes-cbc`, iv: IV, counter: IV, length: 64 }, wKey, msg);
+    return new Uint8Array(cipher).subarray(0, 16);
 }
 function rev32(x) {
     x = ((x & 1431655765) << 1) | ((x >>> 1) & 1431655765);
@@ -89,7 +75,7 @@ function mulPart(arr) {
     a[17] = a[15] ^ a[16];
     return a;
 }
-function polyval(h, data) {
+export function polyval(h, data) {
     const s = new Uint32Array(4);
     const a = mulPart(u32(h));
     if (data.length % 16)
@@ -133,7 +119,6 @@ function polyval(h, data) {
     }
     return u8(s);
 }
-exports.polyval = polyval;
 function equalBytes(a, b) {
     if (a.length !== b.length)
         throw new Error('equalBytes: Different size of Uint8Arrays');
@@ -166,7 +151,7 @@ async function ctr(key, tag, input) {
     }
     return new Uint8Array(output);
 }
-async function deriveKeys(key, nonce) {
+export async function deriveKeys(key, nonce) {
     NONCE_LIMIT(nonce.length);
     if (key.length !== 16 && key.length !== 32)
         throw new Error(`Key length should be 16 or 32 bytes, got: ${key.length} bytes.`);
@@ -185,8 +170,7 @@ async function deriveKeys(key, nonce) {
     }
     return { authKey, encKey };
 }
-exports.deriveKeys = deriveKeys;
-async function AES(key, nonce) {
+export async function AES(key, nonce) {
     const { encKey, authKey } = await deriveKeys(key, nonce);
     const computeTag = async (data, AAD) => {
         const dataPos = wrapPos(AAD.length, 16);
@@ -226,4 +210,3 @@ async function AES(key, nonce) {
         },
     };
 }
-exports.AES = AES;

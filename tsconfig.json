@@ -13,6 +13,6 @@
     "declarationMap": true,
     "baseUrl": ".",
   },
-  "include": ["index.ts"],
+  "include": ["index.ts", "siv.ts"],
   "exclude": ["node_modules", "lib"]
 }
