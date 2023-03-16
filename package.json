@@ -1,6 +1,6 @@
 {
   "name": "micro-aes-gcm",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation",
   "main": "index.js",
   "module": "index.js",
