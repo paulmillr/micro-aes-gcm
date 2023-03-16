@@ -1,5 +1,7 @@
-declare const globalThis: Record<string, any> | undefined;
-const cr = globalThis?.crypto;
+declare const globalThis: Record<string, any> | undefined; // Typescript symbol present in browsers
+const cr = () =>
+  // We support: 1) browsers 2) node.js 19+
+  typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
 // Concatenates several Uint8Arrays into one.
 function concatBytes(...arrays: Uint8Array[]): Uint8Array {
   if (!arrays.every((arr) => arr instanceof Uint8Array))
@@ -23,7 +25,7 @@ function ensureBytes(b: any, len?: number) {
     if (b.length !== len) throw new Error(`Uint8Array length ${len} expected`);
 }
 function ensureCrypto() {
-  if (!cr) throw new Error('globalThis.crypto is not available: use nodejs 19+ or browser');
+  if (!cr()) throw new Error('globalThis.crypto is not available: use nodejs 19+ or browser');
 }
 
 export async function encrypt(sharedKey: Uint8Array, plaintext: Uint8Array) {
@@ -31,8 +33,8 @@ export async function encrypt(sharedKey: Uint8Array, plaintext: Uint8Array) {
   ensureBytes(sharedKey, 32);
   ensureBytes(plaintext);
   const iv = utils.randomBytes(12);
-  const iKey = await cr.subtle.importKey('raw', sharedKey, MD.i, true, ['encrypt']);
-  const cipher = await cr.subtle.encrypt({ name: MD.e, iv }, iKey, plaintext);
+  const iKey = await cr().subtle.importKey('raw', sharedKey, MD.i, true, ['encrypt']);
+  const cipher = await cr().subtle.encrypt({ name: MD.e, iv }, iKey, plaintext);
   return concatBytes(iv, new Uint8Array(cipher));
 }
 
@@ -42,8 +44,8 @@ export async function decrypt(sharedKey: Uint8Array, ciphertext: Uint8Array) {
   ensureBytes(ciphertext);
   const iv = ciphertext.slice(0, 12);
   const ciphertextWithTag = ciphertext.slice(12);
-  const iKey = await cr.subtle.importKey('raw', sharedKey, MD.i, true, ['decrypt']);
-  const plaintext = await cr.subtle.decrypt({ name: MD.e, iv }, iKey, ciphertextWithTag);
+  const iKey = await cr().subtle.importKey('raw', sharedKey, MD.i, true, ['decrypt']);
+  const plaintext = await cr().subtle.decrypt({ name: MD.e, iv }, iKey, ciphertextWithTag);
   return new Uint8Array(plaintext);
 }
 
@@ -52,7 +54,7 @@ declare const TextDecoder: any;
 
 export const utils = {
   randomBytes: (bytesLength = 32) => {
-    return cr.getRandomValues(new Uint8Array(bytesLength));
+    return cr().getRandomValues(new Uint8Array(bytesLength));
   },
   bytesToUtf8(bytes: Uint8Array): string {
     return new TextDecoder().decode(bytes);

@@ -1,4 +1,4 @@
-const cr = globalThis?.crypto;
+const cr = () => typeof globalThis === 'object' && 'crypto' in globalThis ? globalThis.crypto : undefined;
 function concatBytes(...arrays) {
     if (!arrays.every((arr) => arr instanceof Uint8Array))
         throw new Error('Uint8Array list expected');
@@ -22,7 +22,7 @@ function ensureBytes(b, len) {
             throw new Error(`Uint8Array length ${len} expected`);
 }
 function ensureCrypto() {
-    if (!cr)
+    if (!cr())
         throw new Error('globalThis.crypto is not available: use nodejs 19+ or browser');
 }
 export async function encrypt(sharedKey, plaintext) {
@@ -30,8 +30,8 @@ export async function encrypt(sharedKey, plaintext) {
     ensureBytes(sharedKey, 32);
     ensureBytes(plaintext);
     const iv = utils.randomBytes(12);
-    const iKey = await cr.subtle.importKey('raw', sharedKey, MD.i, true, ['encrypt']);
-    const cipher = await cr.subtle.encrypt({ name: MD.e, iv }, iKey, plaintext);
+    const iKey = await cr().subtle.importKey('raw', sharedKey, MD.i, true, ['encrypt']);
+    const cipher = await cr().subtle.encrypt({ name: MD.e, iv }, iKey, plaintext);
     return concatBytes(iv, new Uint8Array(cipher));
 }
 export async function decrypt(sharedKey, ciphertext) {
@@ -40,13 +40,13 @@ export async function decrypt(sharedKey, ciphertext) {
     ensureBytes(ciphertext);
     const iv = ciphertext.slice(0, 12);
     const ciphertextWithTag = ciphertext.slice(12);
-    const iKey = await cr.subtle.importKey('raw', sharedKey, MD.i, true, ['decrypt']);
-    const plaintext = await cr.subtle.decrypt({ name: MD.e, iv }, iKey, ciphertextWithTag);
+    const iKey = await cr().subtle.importKey('raw', sharedKey, MD.i, true, ['decrypt']);
+    const plaintext = await cr().subtle.decrypt({ name: MD.e, iv }, iKey, ciphertextWithTag);
     return new Uint8Array(plaintext);
 }
 export const utils = {
     randomBytes: (bytesLength = 32) => {
-        return cr.getRandomValues(new Uint8Array(bytesLength));
+        return cr().getRandomValues(new Uint8Array(bytesLength));
     },
     bytesToUtf8(bytes) {
         return new TextDecoder().decode(bytes);
