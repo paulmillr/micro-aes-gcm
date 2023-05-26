@@ -17,7 +17,7 @@ Has optional implementation of AES-GCM-SIV RFC 8452 nonce-misuse resistance in a
 
 We support all major platforms and runtimes.
 For [Deno](https://deno.land), ensure to use [npm specifier](https://deno.land/manual@v1.28.0/node/npm_specifiers).
-For React Native, you may need a [polyfill for crypto.getRandomValues](https://github.com/LinusU/react-native-get-random-values).
+For React Native, you may need a polyfill for webcrypto.
 For Node.js older than v19, use shim: `if (!globalThis.crypto) globalThis.crypto = require('node:crypto').webcrypto;`.
 
 ```js
