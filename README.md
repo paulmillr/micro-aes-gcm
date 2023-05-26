@@ -2,8 +2,6 @@
 
 0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation.
 
-Can be imported in browsers as ESM import. For Node.js, v19+ is required. For older node.js, use shim: `globalThis.crypto = require('node.crypto').webcrypto`.
-
 Inserts IV and MAC into the output `iv + ciphertext + mac`:
 
 - `iv` is 12 bytes; it's an CSPRNG-sourced initialization vector for AES-GCM mode.
@@ -16,6 +14,11 @@ Has optional implementation of AES-GCM-SIV RFC 8452 nonce-misuse resistance in a
 ## Usage
 
 > npm install micro-aes-gcm
+
+We support all major platforms and runtimes.
+For [Deno](https://deno.land), ensure to use [npm specifier](https://deno.land/manual@v1.28.0/node/npm_specifiers).
+For React Native, you may need a [polyfill for crypto.getRandomValues](https://github.com/LinusU/react-native-get-random-values).
+For Node.js older than v19, use shim: `if (!globalThis.crypto) globalThis.crypto = require('node:crypto').webcrypto;`.
 
 ```js
 import * as aes from 'micro-aes-gcm';
