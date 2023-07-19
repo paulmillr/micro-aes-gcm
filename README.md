@@ -1,3 +1,5 @@
+**Deprecated. The wrapper was incorporated into <a href="https://github.com/paulmillr/noble-ciphers">noble-ciphers</a>. Use them instead.**
+
 # micro-aes-gcm
 
 0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation.
