@@ -1,5 +1,30 @@
 **Deprecated. The wrapper was incorporated into <a href="https://github.com/paulmillr/noble-ciphers">noble-ciphers</a>. Use them instead.**
 
+```js
+// prepare
+const key = Uint8Array.from([
+  64, 196, 127, 247, 172, 2, 34, 159, 6, 241, 30,
+  174, 183, 229, 41, 114, 253, 122, 119, 168, 177,
+  243, 155, 236, 164, 159, 98, 72, 162, 243, 224, 195,
+]);
+const message = 'Hello world';
+
+// was =>
+import * as aes from 'micro-aes-gcm';
+const ciphertext = await aes.encrypt(key, aes.utils.utf8ToBytes(message));
+const plaintext = await aes.decrypt(key, ciphertext);
+console.log(aes.utils.bytesToUtf8(plaintext) === message);
+
+// became =>
+import { gcm } from '@noble/ciphers/aes';
+import { bytesToUtf8, utf8ToBytes } from '@noble/ciphers/utils';
+import { managedNonce } from '@noble/ciphers/webcrypto/utils';
+const aes = managedNonce(gcm)(key);
+const ciphertext = aes.encrypt(utf8ToBytes(message));
+const plaintext = aes.decrypt(key, ciphertext);
+console.log(bytesToUtf8(plaintext) === message);
+```
+
 # micro-aes-gcm
 
 0-dep wrapper around webcrypto AES-GCM. Has optional RFC 8452 SIV implementation.
